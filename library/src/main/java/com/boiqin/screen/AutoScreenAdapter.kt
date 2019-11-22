@@ -84,14 +84,14 @@ object AutoScreenAdapter {
      */
     fun register(
         @NonNull application: Application, designSize: Float,
-        matchBase: MatchBase,
-        matchUnit: MatchUnit
+        matchBase: MatchBase = MatchBase.WIDTH,
+        matchUnit: MatchUnit = MatchUnit.DP
     ) {
         mActivityLifecycleCallback = mActivityLifecycleCallback ?:
                 object : ActivityLifecycleCallbacks {
                     override fun onActivityCreated(
                         activity: Activity,
-                        savedInstanceState: Bundle
+                        savedInstanceState: Bundle?
                     ) {
                         match(activity, designSize, matchBase, matchUnit)
                     }
@@ -112,16 +112,16 @@ object AutoScreenAdapter {
     }
 
     /**
-     * 全局取消所有的适配
+     * 全局取消适配
      */
-    fun unregister(@NonNull application: Application, @NonNull vararg matchUnit: MatchUnit) {
+    fun unregister(@NonNull application: Application, @NonNull matchUnit: MatchUnit) {
         if (mActivityLifecycleCallback != null) {
             application.unregisterActivityLifecycleCallbacks(mActivityLifecycleCallback)
             mActivityLifecycleCallback = null
         }
-        for (unit in matchUnit) {
-            cancelMatch(application, unit)
-        }
+
+        cancelMatch(application, matchUnit)
+
     }
     /**
      * 适配屏幕（放在 Activity 的 setContentView() 之前执行）
