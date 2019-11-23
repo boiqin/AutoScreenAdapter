@@ -52,30 +52,31 @@ object AutoScreenAdapter {
      *
      * @param application
      */
-    fun setup(@NonNull application: Application) {
+    private fun init(@NonNull application: Application) {
         val displayMetrics = application.resources.displayMetrics
         // 记录系统的原始值
-        matchInfo = matchInfo ?: MatchInfo(
-            displayMetrics.widthPixels,
-            displayMetrics.heightPixels,
-            displayMetrics.density,
-            displayMetrics.densityDpi.toFloat(),
-            displayMetrics.scaledDensity,
-            displayMetrics.xdpi
-        )
-
-        // 添加字体变化的监听
-        application.registerComponentCallbacks(object : ComponentCallbacks {
-            override fun onConfigurationChanged(newConfig: Configuration?) { // 字体改变后,将 appScaledDensity 重新赋值
-                if (newConfig != null && newConfig.fontScale > 0) {
-                    matchInfo?.run {
-                        appScaledDensity = application.resources.displayMetrics.scaledDensity
+        if(null == matchInfo) {
+            matchInfo = MatchInfo(
+                displayMetrics.widthPixels,
+                displayMetrics.heightPixels,
+                displayMetrics.density,
+                displayMetrics.densityDpi.toFloat(),
+                displayMetrics.scaledDensity,
+                displayMetrics.xdpi
+            )
+            // 添加字体变化的监听
+            application.registerComponentCallbacks(object : ComponentCallbacks {
+                override fun onConfigurationChanged(newConfig: Configuration?) { // 字体改变后,将 appScaledDensity 重新赋值
+                    if (newConfig != null && newConfig.fontScale > 0) {
+                        matchInfo?.run {
+                            appScaledDensity = application.resources.displayMetrics.scaledDensity
+                        }
                     }
                 }
-            }
 
-            override fun onLowMemory() {}
-        })
+                override fun onLowMemory() {}
+            })
+        }
 
     }
 
@@ -87,6 +88,7 @@ object AutoScreenAdapter {
         matchBase: MatchBase = MatchBase.WIDTH,
         matchUnit: MatchUnit = MatchUnit.DP
     ) {
+        init(application)
         mActivityLifecycleCallback = mActivityLifecycleCallback ?:
                 object : ActivityLifecycleCallbacks {
                     override fun onActivityCreated(
@@ -150,6 +152,7 @@ object AutoScreenAdapter {
         matchBase: MatchBase = MatchBase.WIDTH,
         matchUnit: MatchUnit = MatchUnit.DP
     ) {
+        init(context.applicationContext as Application)
         if (designSize == 0f) {
             throw UnsupportedOperationException("The designSize cannot be equal to 0")
         }
