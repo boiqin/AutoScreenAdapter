@@ -6,8 +6,11 @@ import android.app.Application.ActivityLifecycleCallbacks
 import android.content.ComponentCallbacks
 import android.content.Context
 import android.content.res.Configuration
+import android.content.res.Resources
 import android.os.Bundle
+import android.util.DisplayMetrics
 import androidx.annotation.NonNull
+
 
 /**
  * 屏幕适配方案
@@ -230,11 +233,26 @@ object AutoScreenAdapter {
             val targetDensityDpi = (targetDensity * 160).toInt()
             val targetScaledDensity =
                 targetDensity * (it.appScaledDensity / it.appDensity)
-            val displayMetrics = context.resources.displayMetrics
+            val resources = context.resources
+            val displayMetrics = specialDisplayMetrics(resources)?:resources.displayMetrics
             displayMetrics.density = targetDensity
             displayMetrics.densityDpi = targetDensityDpi
             displayMetrics.scaledDensity = targetScaledDensity
         }
+    }
+
+    private fun specialDisplayMetrics(resources: Resources): DisplayMetrics? {
+        //解决MIUI更改框架导致的MIUI7+Android5.1.1上出现的失效问题(以及极少数基于这部分miui去掉art然后置入xposed的手机)
+        if ("MiuiResources" == resources.javaClass.simpleName || "XResources" == resources.javaClass.simpleName) {
+            try {
+                val field = Resources::class.java.getDeclaredField("mTmpMetrics")
+                field.isAccessible = true
+                return field.get(resources) as DisplayMetrics
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+        return null
     }
 
     /**
@@ -261,7 +279,8 @@ object AutoScreenAdapter {
                     it.screenHeight * 72f / designSize
                 }
             }
-            val displayMetrics = context.resources.displayMetrics
+            val resources = context.resources
+            val displayMetrics = specialDisplayMetrics(resources)?:resources.displayMetrics
             displayMetrics.xdpi = targetXdpi
         }
     }

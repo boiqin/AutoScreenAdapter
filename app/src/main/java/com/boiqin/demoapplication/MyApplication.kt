@@ -7,8 +7,7 @@ class MyApplication :Application(){
 
     override fun onCreate() {
         super.onCreate()
-        AutoScreenAdapter.setup(this)
-        AutoScreenAdapter.register(this, 37f)
+        //AutoScreenAdapter.register(this, 375f)
     }
 
 

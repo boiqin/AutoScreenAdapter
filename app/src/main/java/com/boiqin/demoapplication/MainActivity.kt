@@ -8,8 +8,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        //AutoScreenAdapter.setup(application)
-       // AutoScreenAdapter.match(this, 375f)
+        AutoScreenAdapter.match(this, 75f)
 
         setContentView(R.layout.activity_main)
     }
